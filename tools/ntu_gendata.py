@@ -57,6 +57,10 @@ def gendata(data_path,
         camera_id = int(
             filename[filename.find('C') + 1:filename.find('C') + 4])
 
+        #select the two person interaction classes
+        if action_class < 50:
+            continue 
+
         if benchmark == 'xview':
             istraining = (camera_id in training_cameras)
         elif benchmark == 'xsub':
@@ -80,13 +84,13 @@ def gendata(data_path,
     # np.save('{}/{}_label.npy'.format(out_path, part), sample_label)
 
     fp = open_memmap(
-        '{}/NTU_2p_data/{}_data.npy'.format(out_path, part),
+        '{}/NTU_2p_data/{}/{}_data.npy'.format(out_path, benchmark, part),
         dtype='float32',
         mode='w+',
         shape=(len(sample_label), 3, max_frame, num_joint*max_body, 1))
 
     fp_pixel = open_memmap(
-        '{}/NTU_2p_pixel/{}_data.npy'.format(out_path, part),
+        '{}/NTU_2p_pixel/{}/{}_data.npy'.format(out_path, benchmark, part),
         dtype='float32',
         mode='w+',
         shape=(len(sample_label), 2, max_frame, num_joint*max_body, 1))
@@ -120,7 +124,7 @@ if __name__ == '__main__':
 
     for b in benchmark:
         for p in part:
-            out_path = os.path.join(arg.out_folder, b)
+            out_path = arg.out_folder
             if not os.path.exists(out_path):
                 os.makedirs(out_path)
             gendata(
