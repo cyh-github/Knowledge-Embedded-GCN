@@ -1,0 +1,43 @@
+work_dir: ./work_dir/SBU/part_3A_set1
+
+# feeder
+feeder: feeder.feeder.Feeder
+train_feeder_args:
+  data_path: ./data/SBU_part/train_data_set1.npy
+  label_path: ./data/SBU_part/train_label_set1.pkl
+test_feeder_args:
+  data_path: ./data/SBU_part/val_data_set1.npy
+  label_path: ./data/SBU_part/val_label_set1.pkl
+
+# model
+
+model: net.st_gcn_3A.Model
+model_args:
+  in_channels: 9
+  num_class: 8
+  t_length: 100
+  temporal_kernel: 5
+  channel_base: 32
+  dropout: 0.5
+  edge_importance_weighting: False
+  graph_args:
+    layout: 'sbu_part_2'
+    strategy: 'spatial'
+  graph_args_k:
+    layout: 'sbu_part_2r'
+    strategy: 'spatial'
+
+
+#optim5
+weight_decay: 0.05
+base_lr: 0.005
+step: [1500, 2000]
+
+# training
+device: [0]
+batch_size: 64
+test_batch_size: 64
+num_epoch: 2600
+
+
+

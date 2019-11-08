@@ -1,0 +1,48 @@
+work_dir: /home/f1y/cyh/st-gcn-li/work_dir/SBU/fusion_test
+
+joint_weights: /home/f1y/cyh/st-gcn-li/models/NTU_joint/3A_cs_92.70.pt
+part_weights: /home/f1y/cyh/st-gcn-li/models/NTU_part/3A_cs_92.44.pt
+
+
+
+
+# feeder
+feeder: feeder.feeder.Feeder
+test_feeder_args:
+  #data_path: /home/f1y/cyh/st-gcn-li/data/SBU_2p_part/val_data_set1.npy
+  joint_data_path: /home/f1y/cyh/st-gcn-li/data/NTU_2p_data/xsub/val_data_2per_relation.npy
+  part_data_path: /home/f1y/cyh/st-gcn-li/data/NTU_2p_part/xsub/xsub_val_2pr.npy
+  label_path: /home/f1y/cyh/st-gcn-li/data/NTU_2p_data/xsub/val_label_2per.pkl
+  phase: test
+
+
+# model
+joint_model: net.st_gcn_3A_SBU_NTU.Model
+joint_model_args:
+  in_channels: 3
+  num_class: 11
+  edge_importance_weighting: ture
+  graph_args:
+    layout: 'ntu_edge_2'
+    strategy: 'spatial'
+  graph_args_k:
+    layout: 'ntu_edge_2r'
+    strategy: 'spatial'
+
+#part model
+part_model: net.st_gcn_3A_NTU.Model
+part_model_args:
+  in_channels: 9
+  num_class: 11
+  edge_importance_weighting: ture
+  graph_args:
+    layout: 'ntu_part_2'
+    strategy: 'spatial'
+  graph_args_k:
+    layout: 'ntu_part_2r'
+    strategy: 'spatial'
+
+# test 
+phase: test
+device: 0
+test_batch_size: 64

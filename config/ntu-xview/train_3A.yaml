@@ -1,0 +1,43 @@
+work_dir: ./work_dir/NTU/3A_xview
+
+# feeder
+feeder: feeder.feeder.Feeder
+train_feeder_args:
+  data_path: ./data/NTU_2p_data/xview/train_data.npy
+  label_path: ./data/NTU_2p_data/xview/train_label.pkl
+test_feeder_args:
+  data_path: ./data/NTU_2p_data/xview/test_data.npy
+  label_path: ./data/NTU_2p_data/xview/test_label.pkl
+
+# model
+
+model: net.st_gcn_3A.Model
+model_args:
+  in_channels: 3
+  num_class: 11
+  t_length: 300
+  temporal_kernel: 9
+  channel_base: 64
+  dropout: 0.5
+  edge_importance_weighting: True
+  graph_args:
+    layout: 'ntu_edge_2'
+    strategy: 'spatial'
+  graph_args_k:
+    layout: 'ntu_edge_2r'
+    strategy: 'spatial'
+
+
+#optim5
+weight_decay: 0.0001
+base_lr: 0.1
+step: [10, 50]
+
+# training
+device: [0]
+batch_size: 64
+test_batch_size: 64
+num_epoch: 80
+
+
+

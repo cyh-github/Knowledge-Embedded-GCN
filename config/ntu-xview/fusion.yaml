@@ -1,0 +1,50 @@
+work_dir: ./work_dir/NTU/fusion
+
+joint_weights: ./models/NTU_joint/cv_3A_model.pt
+part_weights: ./models/NTU_part/cv_3A_model.pt
+
+# feeder
+feeder: feeder.feeder_fusion.Feeder
+test_feeder_args:
+  joint_data_path: ./data/NTU_2p_data/xview/val_data.npy
+  part_data_path: ./data/NTU_2p_part/xview/val_data.npy
+  label_path: ./data/NTU_2p_data/xview/val_label.pkl
+
+
+# model
+joint_model: network.st_gcn_3A.Model
+joint_model_args:
+  in_channels: 3
+  num_class: 11
+  t_length: 300
+  temporal_kernel: 9
+  channel_base: 64
+  edge_importance_weighting: ture
+  graph_args:
+    layout: 'ntu_edge_2'
+    strategy: 'spatial'
+  graph_args_k:
+    layout: 'ntu_edge_2r'
+    strategy: 'spatial'
+
+
+#part model
+part_model: network.st_gcn_3A.Model
+part_model_args:
+  in_channels: 9
+  num_class: 11
+  t_length: 300
+  temporal_kernel: 9
+  channel_base: 64
+  edge_importance_weighting: ture
+  graph_args:
+    layout: 'ntu_part_2'
+    strategy: 'spatial'
+    graph_args_k:
+      layout: 'ntu_part_2r'
+      strategy: 'spatial'
+
+# test 
+phase: test
+device: 0
+test_batch_size: 32
