@@ -26,8 +26,10 @@ Note that some items need to be changed depend on your specific path: For exampl
 
 **test**  
 If you want to test directly without training, here we provide our [pretrained model][https://pan.baidu.com/s/1TGfIk61TX18OZS_N_uFnpA]  
+  
 *single model test*:  
-Run `python main.py recognition -c ConfigFile` to test single model either NTU or SBU model. ConfigFile is the test config yaml file we provide in `./config`.  
+Run `python main.py recognition -c ConfigFile` to test single model either NTU or SBU model. ConfigFile is the test config yaml file we provide in `./config`. 
+  
 *latefusion of joint and part model*:  
 Run `python latefusion.py -c ConfigFile` to fuse the joint model and part model. ConfigFile is the fusion config yaml file we provide in `./config`.  
 
