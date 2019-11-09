@@ -1,0 +1,32 @@
+work_dir: ./work_dir/test
+
+# feeder
+feeder: feeder.feeder.Feeder
+test_feeder_args:
+  data_path: /home/f1y/cyh/st-gcn-3A/data/NTU_2p_part/xview/xview_val_2pr.npy
+  label_path: /home/f1y/cyh/st-gcn-3A/data/NTU_2p_part/xview/xview_val_label_2per.pkl
+
+
+# model
+model: network.st_gcn_3A.Model
+model_args:
+  in_channels: 9
+  num_class: 11
+  dataset: NTU
+  temporal_kernel: 9
+  channel_base: 64
+  dropout: 0.5
+  edge_importance_weighting: True
+  graph_args:
+    layout: 'ntu_part_2'
+    strategy: 'spatial'
+  graph_args_k:
+    layout: 'ntu_part_2r'
+    strategy: 'spatial'
+
+
+# test 
+phase: test
+device: 0
+test_batch_size: 32
+weights: /home/f1y/cyh/st-gcn-3A/models/NTU_part/3A_cv_95.03.pt

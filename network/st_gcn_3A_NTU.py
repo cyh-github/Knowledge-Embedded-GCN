@@ -2,12 +2,12 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-import pickle as pk
 
-from network.utils.tgcn_correlation import ConvTemporalGraphical as ConvTemporalGraphical_self
 from network.utils.tgcn import ConvTemporalGraphical
+from network.utils.tgcn_correlation import ConvTemporalGraphical as ConvTemporalGraphical_self
 from network.utils.graph import Graph
 from network.utils.graph_knowledge import k_Graph
+import pickle as pk
 
 class Model(nn.Module):
     r"""Spatial temporal graph convolutional networks.
@@ -29,41 +29,39 @@ class Model(nn.Module):
             :math:`M_{in}` is the number of instance in a frame.
     """
 
-    def __init__(self, dataset, in_channels, num_class, temporal_kernel, channel_base, graph_args, graph_args_k, edge_importance_weighting, **kwargs):
+    def __init__(self, in_channels, num_class, graph_args, graph_args_k,
+                 edge_importance_weighting, **kwargs):
         super().__init__()
 
         # load graph
         self.graph = Graph(**graph_args)
         A = torch.tensor(self.graph.A, dtype=torch.float32, requires_grad=False)
         self.register_buffer('A', A)
-        
-        #load knowledge graph
+
         self.k_graph = k_Graph(**graph_args_k)
         K_A = torch.tensor(self.k_graph.A, dtype=torch.float32, requires_grad=False)
         self.register_buffer('K_A', K_A)
 
-        self.dataset = dataset
-        channel1 = channel_base
-        channel2 = channel1*2
-        channel3 = channel1*4
+
+        T_length = 300
 
         # build networks
         spatial_kernel_size = A.size(0)
-        temporal_kernel_size = temporal_kernel
+        temporal_kernel_size = 9
         kernel_size = (temporal_kernel_size, spatial_kernel_size)
         self.data_bn = nn.BatchNorm1d(in_channels * A.size(1))
         kwargs0 = {k: v for k, v in kwargs.items() if k != 'dropout'}
         self.st_gcn_networks = nn.ModuleList((
-            st_gcn(self.dataset, in_channels, channel1, kernel_size, 1, residual=False, **kwargs0),
-            st_gcn(self.dataset, channel1, channel1, kernel_size, 1, **kwargs),
-            st_gcn(self.dataset, channel1, channel1, kernel_size, 1, **kwargs),
-            st_gcn(self.dataset, channel1, channel1, kernel_size, 1, **kwargs),
-            st_gcn(self.dataset, channel1, channel2, kernel_size, 2, **kwargs),
-            st_gcn(self.dataset, channel2, channel2, kernel_size, 1, **kwargs),
-            st_gcn(self.dataset, channel2, channel2, kernel_size, 1, **kwargs),
-            st_gcn(self.dataset, channel2, channel3, kernel_size, 2, **kwargs),
-            st_gcn(self.dataset, channel3, channel3, kernel_size, 1, **kwargs),
-            st_gcn(self.dataset, channel3, channel3, kernel_size, 1, **kwargs),
+            st_gcn(in_channels, 64, kernel_size, T_length, 1, residual=False, **kwargs0),
+            st_gcn(64, 64, kernel_size, T_length, 1, **kwargs),
+            st_gcn(64, 64, kernel_size, T_length, 1, **kwargs),
+            st_gcn(64, 64, kernel_size, T_length, 1, **kwargs),
+            st_gcn(64, 128, kernel_size, T_length, 2, **kwargs),
+            st_gcn(128, 128, kernel_size, int(T_length/2), 1, **kwargs),
+            st_gcn(128, 128, kernel_size, int(T_length/2), 1, **kwargs),
+            st_gcn(128, 256, kernel_size, int(T_length/2), 2, **kwargs),
+            st_gcn(256, 256, kernel_size, int(T_length/4), 1, **kwargs),
+            st_gcn(256, 256, kernel_size, int(T_length/4), 1, **kwargs),
         ))
 
 
@@ -81,10 +79,8 @@ class Model(nn.Module):
             self.edge_importance = [1] * len(self.st_gcn_networks)
             self.edge_importance_k = [1] * len(self.st_gcn_networks)
 
-
-
         # fcn for prediction
-        self.fcn = nn.Conv2d(channel3, num_class, kernel_size=1)
+        self.fcn = nn.Conv2d(256, num_class, kernel_size=1)
 
     def forward(self, x):
 
@@ -97,15 +93,17 @@ class Model(nn.Module):
         x = x.permute(0, 1, 3, 4, 2).contiguous()
         x = x.view(N * M, C, T, V)
 
-
         # forwad
-        for gcn, importance, importance_k in zip(self.st_gcn_networks, self.edge_importance,self.edge_importance_k):
-            x, _ = gcn(x, self.A * importance, self.K_A* importance_k)
+        #for gcn, importance, importance_k in zip(self.st_gcn_networks, self.edge_importance,self.edge_importance_k):
+        #    x, _ = gcn(x, self.A * importance, self.K_A* importance_k)
+
+        # for test: visualize adjacency matrix
+        for gcn, importance, importance_k in zip(self.st_gcn_networks, self.edge_importance, self.edge_importance_k):
+            x, _ = gcn(x, self.A * importance, self.K_A * importance_k)
 
         # global pooling
         x = F.avg_pool2d(x, x.size()[2:])
         x = x.view(N, M, -1, 1, 1).mean(dim=1)
-
         # prediction
         x = self.fcn(x)
         x = x.view(x.size(0), -1)
@@ -124,25 +122,20 @@ class Model(nn.Module):
         x = x.view(N * M, C, T, V)
 
         # forwad
-        for gcn, importance, importance_k in zip(self.st_gcn_networks, self.edge_importance,self.edge_importance_k):
-            x, self_A = gcn(x, self.A * importance, self.K_A* importance_k)
+        for gcn, importance in zip(self.st_gcn_networks, self.edge_importance):
+            x, _ = gcn(x, self.A * importance)
 
-        #####predict
-        # global pooling
-        x_pred = F.avg_pool2d(x, x.size()[2:])
-        x_pred = x_pred.view(N, M, -1, 1, 1).mean(dim=1)
+        _, c, t, v = x.size()
+        feature = x.view(N, M, c, t, v).permute(0, 2, 3, 4, 1)
 
         # prediction
-        x_pred = self.fcn(x_pred)
-        output = x_pred.view(x.size(0), -1)
-
-
-        ####extract features
-        _, c, t, v = x.size()
-        feature = x.view(N, M, c, t, v).permute(0, 2, 3, 4, 1) # N,C,T,V,M
+        x = self.fcn(x)
+        output = x.view(N, M, -1, t, v).permute(0, 2, 3, 4, 1)
 
 
         return output, feature
+
+
 
 class st_gcn(nn.Module):
     r"""Applies a spatial temporal graph convolution over an input graph sequence.
@@ -170,10 +163,10 @@ class st_gcn(nn.Module):
     """
 
     def __init__(self,
-                 dataset,
                  in_channels,
                  out_channels,
                  kernel_size,
+                 t_length,
                  stride=1,
                  dropout=0,
                  residual=True):
@@ -182,17 +175,16 @@ class st_gcn(nn.Module):
         assert len(kernel_size) == 2
         assert kernel_size[0] % 2 == 1
         padding = ((kernel_size[0] - 1) // 2, 0)
-        self.dataset = dataset
 
-        self.gcn = ConvTemporalGraphical(in_channels, out_channels,
-                                         kernel_size[1])
         self.gcn_self = ConvTemporalGraphical_self(in_channels, out_channels,
+                                         kernel_size[1], t_length)
+        self.gcn = ConvTemporalGraphical(in_channels, out_channels,
                                          kernel_size[1])
 
 
         self.tcn = nn.Sequential(
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True),
+            nn.ReLU(),
             nn.Conv2d(
                 out_channels,
                 out_channels,
@@ -201,7 +193,7 @@ class st_gcn(nn.Module):
                 padding,
             ),
             nn.BatchNorm2d(out_channels),
-            nn.Dropout(dropout, inplace=True),
+            nn.Dropout(dropout),
         )
 
         if not residual:
@@ -221,19 +213,16 @@ class st_gcn(nn.Module):
             )
 
         self.relu = nn.ReLU(inplace=True)
-        self.bn = nn.BatchNorm2d(out_channels)
 
     def forward(self, x, A, K_A):
 
         res = self.residual(x)
-        x_nature, _ = self.gcn(x, A)
-        x_given, _ = self.gcn(x, K_A)
-        x_learn, A_learn = self.gcn_self(x)
-        if self.dataset == 'SBU':
-            x_3A = (x_nature + x_given + x_learn) / 3
-        else:
-            x_3A = (x_nature + x_given + x_learn)
-        x_3A = self.tcn(x_3A) + res
+        x1, _ = self.gcn(x, A)
+        x2, _ = self.gcn(x, K_A)
+        x3, _ = self.gcn_self(x)
+        x4 = x1 + x2 + x3
+        x = self.tcn(x4) + res
+
+        return self.relu(x), K_A
 
 
-        return self.relu(x_3A), A_learn

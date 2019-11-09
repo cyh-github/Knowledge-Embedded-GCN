@@ -1,0 +1,32 @@
+work_dir: ./work_dir/test
+
+# feeder
+feeder: feeder.feeder.Feeder
+test_feeder_args:
+  data_path: /home/f1y/cyh/st-gcn-3A/data/SBU_2p_part/val_data_set1.npy
+  label_path: /home/f1y/cyh/st-gcn-3A/data/SBU_2p_part/val_label_set1.pkl
+
+
+# model
+model: network.st_gcn_3A.Model
+model_args:
+  in_channels: 9
+  num_class: 8
+  dataset: SBU
+  temporal_kernel: 5
+  channel_base: 32
+  dropout: 0.5
+  edge_importance_weighting: False
+  graph_args:
+    layout: 'sbu_part_2'
+    strategy: 'spatial'
+  graph_args_k:
+    layout: 'sbu_part_2r'
+    strategy: 'spatial'
+
+
+# test 
+phase: test
+device: 0
+test_batch_size: 64
+weights: /home/f1y/cyh/st-gcn-3A/models/SBU_part/set1_94.55.pt

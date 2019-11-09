@@ -15,7 +15,7 @@ model: net.st_gcn_3A.Model
 model_args:
   in_channels: 9
   num_class: 11
-  t_length: 300
+  dataset: NTU
   temporal_kernel: 9
   channel_base: 64
   dropout: 0.5

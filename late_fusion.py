@@ -125,7 +125,7 @@ class Fusion():
 
         print('joint accuracy:', joint_accuracy)
         print('part accuracy:', part_accuracy)
-        print(fusion)
+        print('fusion accuracy:', max(fusion))
 
 
 

@@ -1,14 +1,14 @@
-work_dir: ./work_dir/SBU/fusion
+work_dir: ./work_dir/fusion
 
-joint_weights: ./models/SBU_joint/set1_3A_model.pt
-part_weights: ./models/SBU_part/set1_3A_model.pt
+joint_weights: /home/f1y/cyh/st-gcn-3A/models/SBU_joint/set1_98.18.pt
+part_weights: /home/f1y/cyh/st-gcn-3A/models/SBU_part/set1_94.55.pt
 
 # feeder
 feeder: feeder.feeder_fusion.Feeder
 test_feeder_args:
-  joint_data_path: ./data/SBU/set1_val_data.npy
-  part_data_path: ./data/SBU/set1_val_data_part.npy
-  label_path: ./data/SBU/set1_val_label.pkl
+  joint_data_path: /home/f1y/cyh/st-gcn-3A/data/SBU_2p/val_data_set1.npy
+  part_data_path: /home/f1y/cyh/st-gcn-3A/data/SBU_2p_part/val_data_set1.npy
+  label_path: /home/f1y/cyh/st-gcn-3A/data/SBU_2p/val_label_set1.pkl
 
 
 # model
@@ -16,10 +16,10 @@ joint_model: network.st_gcn_3A.Model
 joint_model_args:
   in_channels: 3
   num_class: 8
-  t_length: 100
+  dataset: SBU
   temporal_kernel: 5
   channel_base: 32
-  edge_importance_weighting: True
+  edge_importance_weighting: False
   graph_args:
     layout: 'sbu_edge_2'
     strategy: 'spatial'
@@ -33,16 +33,16 @@ part_model: network.st_gcn_3A.Model
 part_model_args:
   in_channels: 9
   num_class: 8
-  t_length: 100
+  dataset: SBU
   temporal_kernel: 5
   channel_base: 32
-  edge_importance_weighting: True
+  edge_importance_weighting: False
   graph_args:
     layout: 'sbu_part_2'
     strategy: 'spatial'
-    graph_args_k:
-      layout: 'sbu_part_2r'
-      strategy: 'spatial'
+  graph_args_k:
+    layout: 'sbu_part_2r'
+    strategy: 'spatial'
 
 
 # test 

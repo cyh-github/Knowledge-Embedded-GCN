@@ -15,7 +15,7 @@ model: network.st_gcn_3A.Model
 model_args:
   in_channels: 3
   num_class: 8
-  t_length: 100
+  dataset: SBU
   temporal_kernel: 5
   channel_base: 32
   dropout: 0.5

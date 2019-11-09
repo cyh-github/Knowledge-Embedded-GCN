@@ -1,14 +1,14 @@
-work_dir: ./work_dir/NTU/fusion
+work_dir: ./work_dir/fusion
 
-joint_weights: ./models/NTU_joint/cs_3A_model.pt
-part_weights: ./models/NTU_part/cs_3A_model.pt
+joint_weights: /home/f1y/cyh/st-gcn-3A/models/NTU_joint/3A_cs_92.70.pt
+part_weights: /home/f1y/cyh/st-gcn-3A/models/NTU_part/3A_cs_92.44.pt
 
 # feeder
 feeder: feeder.feeder_fusion.Feeder
 test_feeder_args:
-  joint_data_path: ./data/NTU_2p_data/xsub/val_data.npy
-  part_data_path: ./data/NTU_2p_part/xsub/val_data.npy
-  label_path: ./data/NTU_2p_data/xsub/val_label.pkl
+  joint_data_path: /home/f1y/cyh/st-gcn-3A/data/NTU_2p_data/xsub/val_data_2per_relation.npy
+  part_data_path: /home/f1y/cyh/st-gcn-3A/data/NTU_2p_part/xsub/xsub_val_2pr.npy
+  label_path: /home/f1y/cyh/st-gcn-3A/data/NTU_2p_data/xsub/val_label_2per.pkl
 
 
 # model
@@ -16,7 +16,7 @@ joint_model: network.st_gcn_3A.Model
 joint_model_args:
   in_channels: 3
   num_class: 11
-  t_length: 300
+  dataset: NTU
   temporal_kernel: 9
   channel_base: 64
   edge_importance_weighting: ture
@@ -33,16 +33,16 @@ part_model: network.st_gcn_3A.Model
 part_model_args:
   in_channels: 9
   num_class: 11
-  t_length: 300
+  dataset: NTU
   temporal_kernel: 9
   channel_base: 64
   edge_importance_weighting: ture
   graph_args:
     layout: 'ntu_part_2'
     strategy: 'spatial'
-    graph_args_k:
-      layout: 'ntu_part_2r'
-      strategy: 'spatial'
+  graph_args_k:
+    layout: 'ntu_part_2r'
+    strategy: 'spatial'
 
 
 # test 

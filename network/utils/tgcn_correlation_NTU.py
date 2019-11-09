@@ -88,17 +88,16 @@ class ConvTemporalGraphical(nn.Module):
     def forward(self, x):
 
         N, C, T, V = x.size()
-        A = torch.zeros(N,self.num_subset,V,V).cuda()
+        #A = torch.zeros(N,self.num_subset,V,V).cuda()
         y = None
         for i in range(self.num_subset):
             x1 = self.conv_a[i](x).permute(0, 3, 1, 2).contiguous().view(N, V, self.inter_c * T)
             x2 = self.conv_b[i](x).view(N, self.inter_c * T, V)
             a = self.soft(torch.matmul(x1, x2) / x1.size(-1)) #N,V,V
 
-            Thres = float(torch.mean(a))
+            #thres = float(torch.mean(a))
             a = F.threshold(a,0.02,0)
-            A[:,i,:,:] = a
-            
+
             x_temp = x.view(N, C*T, V)
             z = self.conv_d[i](torch.matmul(x_temp, a).view(N, C, T, V))
             y = z + y if y is not None else z
@@ -106,5 +105,12 @@ class ConvTemporalGraphical(nn.Module):
         y = self.bn(y)
         y += self.down(x)
 
+
+        '''
+        x = self.conv(x)
+        n, kc, t, v = x.size()
+        x = x.view(n, 3, kc // 3, t, v)
+        x = torch.einsum('nkctv,nkvw->nctw', (x, A))
+        '''
 
         return self.relu(y), a
