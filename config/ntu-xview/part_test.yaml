@@ -3,8 +3,8 @@ work_dir: ./work_dir/test
 # feeder
 feeder: feeder.feeder.Feeder
 test_feeder_args:
-  data_path: /home/f1y/cyh/st-gcn-3A/data/NTU_2p_part/xview/xview_val_2pr.npy
-  label_path: /home/f1y/cyh/st-gcn-3A/data/NTU_2p_part/xview/xview_val_label_2per.pkl
+  data_path: ./data/NTU_2p_part/xview/xview_val_2pr.npy
+  label_path: ./data/NTU_2p_part/xview/xview_val_label_2per.pkl
 
 
 # model
@@ -29,4 +29,4 @@ model_args:
 phase: test
 device: 0
 test_batch_size: 32
-weights: /home/f1y/cyh/st-gcn-3A/models/NTU_part/3A_cv_95.03.pt
+weights: ./models/NTU_part/3A_cv_95.03.pt

@@ -1,14 +1,14 @@
 work_dir: ./work_dir/fusion
 
-joint_weights: /home/f1y/cyh/st-gcn-3A/models/SBU_joint/set1_98.18.pt
-part_weights: /home/f1y/cyh/st-gcn-3A/models/SBU_part/set1_94.55.pt
+joint_weights: ./models/SBU_joint/set1_98.18.pt
+part_weights: ./models/SBU_part/set1_94.55.pt
 
 # feeder
 feeder: feeder.feeder_fusion.Feeder
 test_feeder_args:
-  joint_data_path: /home/f1y/cyh/st-gcn-3A/data/SBU_2p/val_data_set1.npy
-  part_data_path: /home/f1y/cyh/st-gcn-3A/data/SBU_2p_part/val_data_set1.npy
-  label_path: /home/f1y/cyh/st-gcn-3A/data/SBU_2p/val_label_set1.pkl
+  joint_data_path: ./data/SBU_2p/val_data_set1.npy
+  part_data_path: ./data/SBU_2p_part/val_data_set1.npy
+  label_path: ./data/SBU_2p/val_label_set1.pkl
 
 
 # model

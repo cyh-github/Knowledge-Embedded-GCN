@@ -30,14 +30,14 @@ model_args:
 
 #optim5
 weight_decay: 0.001
-base_lr: 0.1
-step: [10, 50]
+base_lr: 0.003
+step: [100, 150]
 
 # training
-device: [0]
-batch_size: 64
-test_batch_size: 64
-num_epoch: 80
+device: [0,1,2,3]
+batch_size: 32
+test_batch_size: 32
+num_epoch: 200
 
 
 
