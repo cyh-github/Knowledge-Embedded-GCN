@@ -19,7 +19,7 @@ scipy==1.1.0
 seaborn==0.9.0    
 setuptools==40.2.0   
 six==1.11.0   
-sklearn==0.19.2      
+sklearn==0.0     
 torch==0.4.1    
 torchsummary==1.5      
 torchvision==0.2.1    
