@@ -10,7 +10,7 @@ More detials version information please refer in `requirements.txt`
 Run `pip install -r requirements.txt` to quickly install all pickages need.  
 
 **Our key block**  
-![network architecture](https://github.com/cyh-github/Knowledge-Embedded-GCN/blob/master/fig/3A_block.pdf)
+![network architecture](https://github.com/cyh-github/Knowledge-Embedded-GCN/blob/master/fig/3A_block.png)
   
 **data process**  
 Here we take NTU dataset as an example:
