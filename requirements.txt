@@ -2,7 +2,7 @@ h5py==1.15.1
 imageio==2.5.0   
 matplotlib==2.2.3     
 numpy==1.15.1   
-opencv-python==4.1.0.25 
+opencv-python==4.2.0.32 
 pandas==0.23.4   
 Pillow==5.2.0    
 pip==10.0.1   
